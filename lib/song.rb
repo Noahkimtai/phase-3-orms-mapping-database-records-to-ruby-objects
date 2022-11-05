@@ -49,4 +49,32 @@ class Song
     song.save
   end
 
+  # def method to create an object from db
+  def self.new_from_db(row)
+    # takes the array returned from db and create class instance
+    self.new(id: row[0], name: row[1], album: row[2])
+  end
+  # def the method all to access data from database and create new object from them
+  def self.all
+    sql = <<-SQL
+        SELECT * FROM songs
+      SQL
+    DB[:conn].execute(sql).map do |row|
+      Song.new_from_db(row)
+    end
+  end
+
+  # class method that fetch from db using name
+  def self.find_by_name(name)
+    sql = <<-SQL
+      SELECT * FROM songs
+      WHERE name = ?
+      LIMIT 1
+    SQL
+    #then create an instance of an object from the return
+    DB[:conn].execute(sql,name).map do |row|
+      self.new_from_db(row)
+    end.first
+  end
+
 end
